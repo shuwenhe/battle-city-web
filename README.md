@@ -2,8 +2,6 @@
 
 经典坦克大战的网页复刻，支持单人、双人、局域网联机、关卡编辑和 AI 托管。
 
-在线游玩：https://battle-city.js.org
-
 - 0.4.0 的设计与实现：[resources/introduction.md](resources/introduction.md)
 
 如果游戏过程中发现任何 BUG 的话，欢迎提 [issue](https://github.com/feichao93/battle-city/issues/new)。
