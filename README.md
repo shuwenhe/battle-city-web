@@ -4,8 +4,6 @@
 
 - 0.4.0 的设计与实现：[resources/introduction.md](resources/introduction.md)
 
-如果游戏过程中发现任何 BUG 的话，欢迎提 [issue](https://github.com/feichao93/battle-city/issues/new)。
-
 ### 命令行一键启动
 
 需要 Node.js 18 及以上：
