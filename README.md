@@ -30,8 +30,6 @@ pnpm build:npm   # 按相对路径打包到 www/，npm 包用的就是它
 
 **Milestone 0.4.0（2026-09-28）**
 
-在 Claude Opus 5.5 的帮助下全面重写：
-
 - [x] 技术栈：TypeScript + Vite 6 + React 19 + PixiJS v8 + zustand；战场用 PixiJS 绘制，界面用 React + SVG；游戏逻辑为 60Hz 定步引擎，与渲染分离
 - [x] 坦克数值、bot 出生规则对齐 NES 原版；玩家坦克在冰面上会滑行
 - [x] 更合理的电脑玩家：进攻老鹰时按需打砖开路，开局多游荡、越往后越凶，偶尔转身打侧面的玩家
