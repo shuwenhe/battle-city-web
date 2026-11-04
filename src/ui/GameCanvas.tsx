@@ -116,6 +116,7 @@ function Battle(props: {
     let game: Game | null = null
     let onEsc: ((e: KeyboardEvent) => void) | null = null
     let stopAwaitingKey: (() => void) | null = null
+    let onResize: ((e: Event) => void) | null = null
     let cancelled = false
 
     const init = async () => {
@@ -132,7 +133,59 @@ function Battle(props: {
         return
       }
       app = instance
+      // 设置 canvas 样式以占满容器
+      instance.canvas.style.display = 'block'
+      instance.canvas.style.width = '100%'
+      instance.canvas.style.height = '100%'
+      instance.canvas.style.margin = '0'
+      instance.canvas.style.padding = '0'
       container.appendChild(app.canvas)
+
+      // 处理窗口调整大小
+      const handleResize = () => {
+        const rect = container.getBoundingClientRect()
+        const containerWidth = rect.width
+        const containerHeight = rect.height
+        
+        if (containerWidth <= 0 || containerHeight <= 0) {
+          console.warn('[GameCanvas] Container size is invalid:', containerWidth, containerHeight)
+          return
+        }
+        
+        const logicalWidth = SCREEN_WIDTH * ZOOM_LEVEL   // 512
+        const logicalHeight = SCREEN_HEIGHT * ZOOM_LEVEL  // 480
+        const gameAspect = logicalWidth / logicalHeight
+        const containerAspect = containerWidth / containerHeight
+
+        let finalWidth, finalHeight
+        
+        if (containerAspect > gameAspect) {
+          // 容器相对较宽，按高度限制
+          finalHeight = containerHeight
+          finalWidth = finalHeight * gameAspect
+        } else {
+          // 容器相对较高，按宽度限制
+          finalWidth = containerWidth
+          finalHeight = finalWidth / gameAspect
+        }
+
+        // 更新 canvas 显示尺寸（CSS）
+        instance.canvas.style.width = Math.floor(finalWidth) + 'px'
+        instance.canvas.style.height = Math.floor(finalHeight) + 'px'
+        
+        if (import.meta.env.DEV) {
+          console.log('[GameCanvas Resize]', {
+            container: { width: containerWidth, height: containerHeight },
+            canvas: { width: Math.floor(finalWidth), height: Math.floor(finalHeight) },
+            aspectRatios: { game: gameAspect.toFixed(3), container: containerAspect.toFixed(3) }
+          })
+        }
+      }
+
+      onResize = handleResize
+      window.addEventListener('resize', handleResize)
+      // 延迟调用确保 DOM 已完全渲染
+      Promise.resolve().then(() => handleResize())
 
       // 开场 stage_start 在入场幕布合拢时播放，必须等音效解码完再开局
       await audio.preload()
@@ -265,6 +318,10 @@ function Battle(props: {
         document.removeEventListener('keydown', onEsc)
         onEsc = null
       }
+      if (onResize != null) {
+        window.removeEventListener('resize', onResize)
+        onResize = null
+      }
       if (game != null) {
         game.stop()
         game = null
@@ -282,8 +339,32 @@ function Battle(props: {
   }, [])
 
   return (
-    <div style={{ position: 'relative', lineHeight: 0 }}>
-      <div ref={containerRef} />
+    <div style={{ 
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      lineHeight: 0,
+      overflow: 'hidden',
+      background: '#000',
+      margin: 0,
+      padding: 0,
+      zIndex: 0
+    }}>
+      <div 
+        ref={containerRef} 
+        style={{ 
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }} 
+      />
       {statistics != null && <StatisticsScene view={statistics.view} scores={statistics.scores} />}
       <BattleOverlay
         view={view}
